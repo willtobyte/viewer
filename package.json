@@ -5,5 +5,8 @@
   },
   "devDependencies": {
     "electron": "^37.2.0"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1"
   }
 }
