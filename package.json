@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}
