@@ -26,14 +26,14 @@ app.whenReady().then(async () => {
       return
     }
 
-    if (pathname.endsWith('/carimbo.js')) {
-      callback({ mimeType: 'application/javascript', data: jsCode })
-      return
-    }
+    // if (pathname.endsWith('/carimbo.js')) {
+    //   callback({ mimeType: 'application/javascript', data: jsCode })
+    //   return
+    // }
 
-    if (pathname.endsWith('/bundle.7z')) {
+    if (pathname.endsWith('/bundle.zip')) {
       callback({
-        mimeType: 'application/x-7z-compressed',
+        mimeType: 'application/zip',
         data: await createBundle(SANDBOX_DIR)
       })
       return
@@ -67,7 +67,7 @@ function getMime(file) {
     case file.endsWith('.html'): return 'text/html'
     case file.endsWith('.js'): return 'application/javascript'
     case file.endsWith('.wasm'): return 'application/wasm'
-    case file.endsWith('.7z'): return 'application/x-7z-compressed'
+    case file.endsWith('.zip'): return 'application/zip'
   }
 
   return 'application/octet-stream'
