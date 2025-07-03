@@ -26,10 +26,10 @@ app.whenReady().then(async () => {
       return
     }
 
-    // if (pathname.endsWith('/carimbo.js')) {
-    //   callback({ mimeType: 'application/javascript', data: jsCode })
-    //   return
-    // }
+    if (pathname.endsWith('/carimbo.js')) {
+      callback({ mimeType: 'application/javascript', data: jsCode })
+      return
+    }
 
     if (pathname.endsWith('/bundle.zip')) {
       callback({
