@@ -46,9 +46,14 @@ app.whenReady().then(async () => {
   })
 
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    show: false,
     webPreferences: { devTools: true }
+  })
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.maximize()
+    mainWindow.show()
+    mainWindow.webContents.openDevTools({ mode: 'right' })
   })
 
   mainWindow.loadURL(`file://${ROOT}/index.html`)
