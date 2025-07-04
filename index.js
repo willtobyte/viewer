@@ -1,107 +1,98 @@
-const { app, BrowserWindow, protocol } = require('electron')
-const fs = require('fs/promises')
-const path = require('path')
-const { watch, readdirSync, statSync } = require('fs')
-const archiver = require('archiver')
-const stream = require('stream')
+const { app, BrowserWindow, protocol } = require("electron");
+const fs = require("fs/promises");
+const path = require("path");
+const { watch } = require("fs");
+const archiver = require("archiver");
+const stream = require("stream");
+const { readdir, stat } = require("fs/promises");
 
-const ROOT = __dirname
-const WASM_PATH = path.join(ROOT, '../carimbo/build/carimbo.wasm')
-const JS_PATH = path.join(ROOT, '../carimbo/build/carimbo.js')
-const SANDBOX_DIR = path.join(ROOT, '../sandbox')
+const ROOT = __dirname;
+const HTML_INDEX = path.join(ROOT, "./index.html");
+const WEBASSEMBLY_PATH = path.join(ROOT, "../carimbo/build/carimbo.wasm");
+const JAVASCRIPT_PATH = path.join(ROOT, "../carimbo/build/carimbo.js");
+const SANDBOX_DIR = path.join(ROOT, "../sandbox");
 
-let mainWindow = null
-let wasmCode = null
-let jsCode = null
+let mainWindow = null;
 
 app.whenReady().then(async () => {
-  wasmCode = await fs.readFile(WASM_PATH)
-  jsCode = await fs.readFile(JS_PATH)
+  protocol.interceptBufferProtocol("file", async (request, callback) => {
+    const pathname = decodeURIComponent(new URL(request.url).pathname);
 
-  protocol.interceptBufferProtocol('file', async (request, callback) => {
-    const pathname = decodeURIComponent(new URL(request.url).pathname)
-
-    if (pathname.endsWith('/carimbo.wasm')) {
-      callback({ mimeType: 'application/wasm', data: wasmCode })
-      return
+    if (pathname.endsWith("/index.html")) {
+      callback({ mimeType: "text/html", data: await fs.readFile(HTML_INDEX) });
+      return;
     }
 
-    if (pathname.endsWith('/carimbo.js')) {
-      callback({ mimeType: 'application/javascript', data: jsCode })
-      return
-    }
-
-    if (pathname.endsWith('/bundle.zip')) {
+    if (pathname.endsWith("/carimbo.wasm")) {
       callback({
-        mimeType: 'application/zip',
-        data: await createBundle(SANDBOX_DIR)
-      })
-      return
+        mimeType: "application/wasm",
+        data: await fs.readFile(WEBASSEMBLY_PATH),
+      });
+      return;
     }
 
-    callback({
-      mimeType: getMime(pathname),
-      data: await fs.readFile(pathname)
-    })
-  })
+    if (pathname.endsWith("/carimbo.js")) {
+      callback({
+        mimeType: "application/javascript",
+        data: await fs.readFile(JAVASCRIPT_PATH),
+      });
+      return;
+    }
+
+    if (pathname.endsWith("/bundle.zip")) {
+      callback({
+        mimeType: "application/zip",
+        data: await createBundle(SANDBOX_DIR),
+      });
+      return;
+    }
+  });
 
   mainWindow = new BrowserWindow({
     show: false,
-    webPreferences: { devTools: true }
-  })
+    webPreferences: { devTools: true },
+  });
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.maximize()
-    mainWindow.show()
-    mainWindow.webContents.openDevTools({ mode: 'right' })
-  })
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.maximize();
+    mainWindow.show();
+    mainWindow.webContents.openDevTools({ mode: "right" });
+  });
 
-  mainWindow.loadURL(`file://${ROOT}/index.html`)
+  mainWindow.loadURL(`file://${ROOT}/index.html`);
 
-  watch(WASM_PATH, { persistent: false }, () => {
-    mainWindow.webContents.reloadIgnoringCache()
-  })
+  watch(WEBASSEMBLY_PATH, { persistent: false }, () => {
+    mainWindow.webContents.reloadIgnoringCache();
+  });
+});
 
-  watch(JS_PATH, { persistent: false }, () => {
-    mainWindow.webContents.reloadIgnoringCache()
-  })
-})
+async function createBundle(dir) {
+  return new Promise(async (resolve, reject) => {
+    const output = new stream.PassThrough();
+    const archive = archiver("zip", { zlib: { level: 1 } });
 
-function getMime(file) {
-  switch (true) {
-    case file.endsWith('.html'): return 'text/html'
-    case file.endsWith('.js'): return 'application/javascript'
-    case file.endsWith('.wasm'): return 'application/wasm'
-    case file.endsWith('.zip'): return 'application/zip'
-  }
+    const chunks = [];
+    output.on("data", chunk => chunks.push(chunk));
+    output.on("end", () => resolve(Buffer.concat(chunks)));
+    output.on("error", reject);
+    archive.on("error", reject);
+    archive.pipe(output);
 
-  return 'application/octet-stream'
-}
+    try {
+      const entries = await readdir(dir);
+      for (const entry of entries) {
+        if (entry.startsWith(".")) continue;
 
-function createBundle(dir) {
-  return new Promise((resolve, reject) => {
-    const output = new stream.PassThrough()
-    const archive = archiver('zip', { zlib: { level: 1 } })
+        const fullPath = path.join(dir, entry);
+        const stats = await stat(fullPath);
 
-    const chunks = []
-    output.on('data', chunk => chunks.push(chunk))
-    output.on('end', () => resolve(Buffer.concat(chunks)))
-    output.on('error', reject)
+        if (stats.isFile()) archive.file(fullPath, { name: entry });
+        if (stats.isDirectory()) archive.directory(fullPath, entry);
+      }
 
-    archive.on('error', reject)
-    archive.pipe(output)
-
-    const entries = readdirSync(dir)
-    for (const entry of entries) {
-      if (entry.startsWith('.')) continue
-
-      const fullPath = path.join(dir, entry)
-      const stats = statSync(fullPath)
-
-      if (stats.isFile()) archive.file(fullPath, { name: entry })
-      if (stats.isDirectory()) archive.directory(fullPath, entry)
+      await archive.finalize();
+    } catch (err) {
+      reject(err);
     }
-
-    archive.finalize()
-  })
+  });
 }
