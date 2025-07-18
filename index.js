@@ -19,7 +19,11 @@ app.whenReady().then(async () => {
     const pathname = decodeURIComponent(new URL(request.url).pathname);
 
     if (pathname.endsWith("/index.html")) {
-      callback({ mimeType: "text/html", data: await fs.readFile(HTML_INDEX) });
+      callback({
+        mimeType: "text/html",
+        data: await fs.readFile(HTML_INDEX)
+      });
+
       return;
     }
 
@@ -28,6 +32,7 @@ app.whenReady().then(async () => {
         mimeType: "application/wasm",
         data: await fs.readFile(WEBASSEMBLY_PATH),
       });
+
       return;
     }
 
@@ -36,6 +41,7 @@ app.whenReady().then(async () => {
         mimeType: "application/javascript",
         data: await fs.readFile(JAVASCRIPT_PATH),
       });
+
       return;
     }
 
@@ -44,6 +50,7 @@ app.whenReady().then(async () => {
         mimeType: "application/zip",
         data: await createBundle(SANDBOX_DIR),
       });
+
       return;
     }
   });
@@ -53,13 +60,15 @@ app.whenReady().then(async () => {
     webPreferences: { devTools: true },
   });
 
+  mainWindow.webContents.setAudioMuted(true);
+
   mainWindow.once("ready-to-show", () => {
     mainWindow.maximize();
     mainWindow.show();
     mainWindow.webContents.openDevTools({ mode: "right" });
   });
 
-  mainWindow.loadURL(`file://${ROOT}/index.html`);
+  mainWindow.loadURL(`file://${ROOT}/index.html?stage=pixelslab`);
 
   watch(WEBASSEMBLY_PATH, { persistent: false }, () => {
     mainWindow.webContents.reloadIgnoringCache();
