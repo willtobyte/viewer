@@ -68,7 +68,7 @@ app.whenReady().then(async () => {
     mainWindow.webContents.openDevTools({ mode: "right" });
   });
 
-  mainWindow.loadURL(`file://${ROOT}/index.html?stage=pixelslab`);
+  mainWindow.loadURL(`file://${ROOT}/index.html`);
 
   watch(WEBASSEMBLY_PATH, { persistent: false }, () => {
     mainWindow.webContents.reloadIgnoringCache();
