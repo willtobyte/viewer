@@ -45,10 +45,10 @@ app.whenReady().then(async () => {
       return;
     }
 
-    if (pathname.endsWith("/bundle.zip")) {
+    if (pathname.endsWith("/cartridge.zip")) {
       callback({
         mimeType: "application/zip",
-        data: await createBundle(SANDBOX_DIR),
+        data: await createCartridge(SANDBOX_DIR),
       });
 
       return;
@@ -75,7 +75,7 @@ app.whenReady().then(async () => {
   });
 });
 
-async function createBundle(dir) {
+async function createCartridge(dir) {
   return new Promise(async (resolve, reject) => {
     const output = new stream.PassThrough();
     const archive = archiver("zip", { zlib: { level: 1 } });
