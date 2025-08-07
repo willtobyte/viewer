@@ -10,7 +10,7 @@ const ROOT = __dirname;
 const HTML_INDEX = path.join(ROOT, "./index.html");
 const WEBASSEMBLY_PATH = path.join(ROOT, "../carimbo/build/carimbo.wasm");
 const JAVASCRIPT_PATH = path.join(ROOT, "../carimbo/build/carimbo.js");
-const SANDBOX_DIR = process.env.ENTRYPOINT
+const ENTRYPOINT_DIR = process.env.ENTRYPOINT
 
 let mainWindow = null;
 
@@ -48,7 +48,7 @@ app.whenReady().then(async () => {
     if (pathname.endsWith("/cartridge.zip")) {
       callback({
         mimeType: "application/zip",
-        data: await createCartridge(SANDBOX_DIR),
+        data: await createCartridge(ENTRYPOINT_DIR),
       });
 
       return;
