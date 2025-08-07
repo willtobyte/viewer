@@ -10,7 +10,7 @@ const ROOT = __dirname;
 const HTML_INDEX = path.join(ROOT, "./index.html");
 const WEBASSEMBLY_PATH = path.join(ROOT, "../carimbo/build/carimbo.wasm");
 const JAVASCRIPT_PATH = path.join(ROOT, "../carimbo/build/carimbo.js");
-const SANDBOX_DIR = process.env.ROOT
+const SANDBOX_DIR = process.env.ENTRYPOINT
 
 let mainWindow = null;
 
