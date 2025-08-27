@@ -10,7 +10,7 @@ const ROOT = __dirname;
 const HTML_INDEX = path.join(ROOT, "./index.html");
 const WEBASSEMBLY_PATH = path.join(ROOT, "../carimbo/build/carimbo.wasm");
 const JAVASCRIPT_PATH = path.join(ROOT, "../carimbo/build/carimbo.js");
-const ENTRYPOINT_DIR = process.env.ENTRYPOINT
+const ENTRYPOINT_DIR = process.env.ENTRYPOINT;
 
 let mainWindow = null;
 
@@ -21,7 +21,7 @@ app.whenReady().then(async () => {
     if (pathname.endsWith("/index.html")) {
       callback({
         mimeType: "text/html",
-        data: await fs.readFile(HTML_INDEX)
+        data: await fs.readFile(HTML_INDEX),
       });
 
       return;
@@ -81,7 +81,7 @@ async function createCartridge(dir) {
     const archive = archiver("zip", { zlib: { level: 1 } });
 
     const chunks = [];
-    output.on("data", chunk => chunks.push(chunk));
+    output.on("data", (chunk) => chunks.push(chunk));
     output.on("end", () => resolve(Buffer.concat(chunks)));
     output.on("error", reject);
     archive.on("error", reject);
