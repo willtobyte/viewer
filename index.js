@@ -10,7 +10,7 @@ const ROOT = __dirname;
 const HTML_INDEX = path.join(ROOT, "./index.html");
 const WEBASSEMBLY_PATH = path.join(ROOT, "../carimbo/build/carimbo.wasm");
 const JAVASCRIPT_PATH = path.join(ROOT, "../carimbo/build/carimbo.js");
-const ENTRYPOINT_DIR = process.env.ENTRYPOINT;
+const CARTRIDGE_DIR = process.env.CARTRIDGE;
 
 let mainWindow = null;
 
@@ -48,7 +48,7 @@ app.whenReady().then(async () => {
     if (pathname.endsWith("/cartridge.zip")) {
       callback({
         mimeType: "application/zip",
-        data: await createCartridge(ENTRYPOINT_DIR),
+        data: await createCartridge(CARTRIDGE_DIR),
       });
 
       return;
@@ -60,7 +60,7 @@ app.whenReady().then(async () => {
     webPreferences: { devTools: true },
   });
 
-  mainWindow.webContents.setAudioMuted(true);
+  // mainWindow.webContents.setAudioMuted(true);
 
   mainWindow.once("ready-to-show", () => {
     mainWindow.maximize();
