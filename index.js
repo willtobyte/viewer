@@ -68,7 +68,12 @@ app.whenReady().then(async () => {
     mainWindow.webContents.openDevTools({ mode: "right" });
   });
 
-  mainWindow.loadURL(`file://${ROOT}/index.html`);
+  const url = new URL(`file://${path.join(ROOT, "index.html")}`);
+  const scene = process.env.SCENE || "prelude";
+  if (scene) {
+    url.searchParams.set("scene", encodeURIComponent(scene));
+  }
+  mainWindow.loadURL(url.toString());
 
   watch(WEBASSEMBLY_PATH, { persistent: false }, () => {
     mainWindow.webContents.reloadIgnoringCache();
