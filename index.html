@@ -48,14 +48,14 @@
     <script type="module">
       const canvas = document.getElementById("canvas");
 
-      const response = await fetch("cartridge.zip");
+      const response = await fetch("cartridge.rom");
       const cartridge = await response.arrayBuffer();
 
       window.Module = {
         canvas,
         noInitialRun: true,
         onRuntimeInitialized: () => {
-          FS.writeFile("/cartridge.zip", new Uint8Array(cartridge));
+          FS.writeFile("/cartridge.rom", new Uint8Array(cartridge));
           Module.callMain();
         },
       };

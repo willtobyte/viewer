@@ -45,9 +45,9 @@ app.whenReady().then(async () => {
       return;
     }
 
-    if (pathname.endsWith("/cartridge.zip")) {
+    if (pathname.endsWith("/cartridge.rom")) {
       callback({
-        mimeType: "application/zip",
+        mimeType: "application/octet-stream",
         data: await createCartridge(CARTRIDGE_DIR),
       });
 
